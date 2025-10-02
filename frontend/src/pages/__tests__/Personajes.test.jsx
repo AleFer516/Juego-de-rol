@@ -15,8 +15,10 @@ function renderWithRouter(ui) {
 test("muestra personajes desde la API y controles GM", async () => {
   renderWithRouter(<Personajes />);
 
-  // Encabezado
-  expect(await screen.findByText(/Personajes/i)).toBeInTheDocument();
+ // Encabezado principal (H2) de la vista
+ expect(
+   await screen.findByRole("heading", { name: /^Personajes$/i, level: 2 })
+ ).toBeInTheDocument();
   // Ítem de ejemplo servido por MSW
   expect(await screen.findByText("Arthas")).toBeInTheDocument();
   // Botones de GM visibles

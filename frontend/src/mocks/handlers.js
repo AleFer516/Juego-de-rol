@@ -1,73 +1,92 @@
-import { http, HttpResponse } from "msw";
+// src/mocks/handlers.js
+import { http, HttpResponse, delay } from "msw";
 
-const API = "http://127.0.0.1:8000/api";
+/**
+ * ¡IMPORTANTE!
+ * Usamos rutas con wildcard ("...") para que coincidan
+ * sin importar el origen/baseURL que use tu cliente (axios/fetch).
+ *
+ * También devolvemos siempre JSON con las claves que espera tu UI:
+ * - login/register: { access, ... }
+ * - me: { rol }
+ * - listas básicas para personajes y catálogo
+  */
 
 export const handlers = [
-  // --- Auth ---
-  http.post(`${API}/token/`, async ({ request }) => {
-    const body = await request.json();
-    if (body.username === "gm" && body.password === "Passw0rd!") {
-      return HttpResponse.json({ access: "fake.jwt.token" }, { status: 200 });
-    }
-    if (body.username === "user" && body.password === "Passw0rd!") {
-      return HttpResponse.json({ access: "fake.jwt.token" }, { status: 200 });
-    }
-    return HttpResponse.json({ detail: "Credenciales inválidas." }, { status: 401 });
-  }),
-
-  http.get(`${API}/yo/`, () => {
-    // Por defecto rol GM para tests que lo requieran (puedes cambiarlo en tests con server.use)
-    return HttpResponse.json({ id: 1, usuario: "gm", rol: "GM" }, { status: 200 });
-  }),
-
-  // --- Catálogo (GM) ---
-  http.get(`${API}/razas/`, () => HttpResponse.json([{ id: 1, nombre: "Humano" }])),
-  http.get(`${API}/habilidades/`, () => HttpResponse.json([{ id: 1, nombre: "Sigilo" }, { id: 2, nombre: "Fuerza" }])),
-  http.get(`${API}/poderes/`, () => HttpResponse.json([{ id: 1, nombre: "Fuego" }])),
-  http.get(`${API}/equipamientos/`, () => HttpResponse.json([{ id: 1, nombre: "Espada" }])),
-
-  http.post(`${API}/razas/`, async ({ request }) => {
-    const body = await request.json();
-    if (!body?.nombre) return HttpResponse.json({ detail: "Nombre requerido" }, { status: 400 });
-    return HttpResponse.json({ id: 2, nombre: body.nombre }, { status: 201 });
-  }),
-
-  // --- Personajes ---
-  http.get(`${API}/personajes/`, () =>
-    HttpResponse.json([
+  // ---- AUTH ----
+  http.post("*/auth/login/", async () => {
+    // Simula un pequeño delay de red (opcional)
+    await delay(10);
+    return HttpResponse.json(
       {
-        id: 10,
-        nombre: "Arthas",
-        nivel: 1,
-        estado: "VIVO",
-        raza_nombre: "Humano",
-        poder_nombre: "Fuego",
-        equipamiento_nombre: "Espada",
-        propietario_username: "gm",
-        opciones: [{ id: 1, nombre: "Sigilo" }, { id: 2, nombre: "Fuerza" }],
-        seleccion: [],
+        access: "token_login_123",
+        refresh: "refresh_abc",
+        user: { id: 1, username: "gm" },
       },
-    ])
-  ),
+      { status: 200 }
+    );
+  }),
 
-  http.get(`${API}/personajes/disponibles/`, () =>
-    HttpResponse.json([
+  http.post("*/auth/register/", async () => {
+    await delay(10);
+    return HttpResponse.json(
       {
-        id: 99,
-        nombre: "SinDueño",
-        nivel: 1,
-        estado: "VIVO",
-        raza_nombre: "Humano",
-        poder_nombre: "Fuego",
-        equipamiento_nombre: "Espada",
-        propietario_username: null,
-        opciones: [{ id: 1, nombre: "Sigilo" }, { id: 2, nombre: "Fuerza" }],
-        seleccion: [],
+        access: "token_reg_123",
+        user: { id: 2, username: "user" },
       },
-    ])
-  ),
+      { status: 201 }
+    );
+  }),
 
-  http.post(`${API}/personajes/99/elegir/`, () =>
-    HttpResponse.json({ ok: true, personaje: 99, propietario: "user" }, { status: 200 })
-  ),
+  http.get("*/auth/me/", async ({ request }) => {
+    await delay(10);
+    const auth = request.headers.get("Authorization") || "";
+    // Si el token contiene "login" => GM, si no => JUGADOR
+    const rol = auth.includes("token_login_") ? "GM" : "JUGADOR";
+    return HttpResponse.json({ rol }, { status: 200 });
+  }),
+
+  // ---- PERSONAJES ----
+  http.get("*/personajes/", async () => {
+    await delay(10);
+    return HttpResponse.json(
+      [
+        { id: 1, nombre: "Arthas", nivel: 10, raza: "Humano" },
+        { id: 2, nombre: "Jaina", nivel: 8, raza: "Humano" },
+      ],
+      { status: 200 }
+    );
+  }),
+
+  // Lista “disponibles” cuando el usuario NO es GM
+  http.get("*/personajes/disponibles/", async () => {
+    await delay(10);
+    return HttpResponse.json(
+      [
+        { id: 3, nombre: "Thrall", nivel: 5, raza: "Orco" },
+        { id: 4, nombre: "Valeera", nivel: 7, raza: "Elfa" },
+      ],
+      { status: 200 }
+    );
+  }),
+
+  // Cualquier acción PATCH sobre personajes (edición, subir nivel, etc.)
+  http.patch("*/personajes/:id", async () => {
+    await delay(10);
+    return HttpResponse.json({ ok: true }, { status: 200 });
+  }),
+
+  // ---- CATÁLOGO ----
+  http.get("*/catalogo/razas/", async () => {
+    await delay(10);
+    return HttpResponse.json(["Humano"], { status: 200 });
+  }),
+
+  http.post("*/catalogo/razas/", async () => {
+    await delay(10);
+    return HttpResponse.json({ ok: true }, { status: 201 });
+  }),
+
+  // (Opcional) Si tu UI hiciera otras llamadas “genéricas”,
+  // puedes agregar más handlers wildcard aquí.
 ];

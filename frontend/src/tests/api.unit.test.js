@@ -1,29 +1,36 @@
 // src/tests/api.unit.test.js
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-/* ========= Mocks hoisted (antes del vi.mock) ========= */
-const hoisted = vi.hoisted(() => {
-  return {
-    mockPost: vi.fn(),
-    mockGet: vi.fn(),
-    interceptorUse: vi.fn(),
-  };
-});
+/* ===== Hoisted mocks ===== */
+const hoisted = vi.hoisted(() => ({
+  mockGet: vi.fn(),
+  mockPost: vi.fn(),
+  mockPatch: vi.fn(),
+  mockDelete: vi.fn(),
+  savedInterceptor: null, // guardaremos aquí la función del interceptor
+}));
 
-/* ========= Mock de axios ========= */
+/* ===== Mock de axios ===== */
 vi.mock("axios", () => {
-  const instance = {
+  const inst = {
     get: (...a) => hoisted.mockGet(...a),
     post: (...a) => hoisted.mockPost(...a),
-    interceptors: { request: { use: hoisted.interceptorUse } },
+    patch: (...a) => hoisted.mockPatch(...a),
+    delete: (...a) => hoisted.mockDelete(...a),
+    interceptors: {
+      request: {
+        // guardamos la fn en una variable accesible por el test
+        use: (fn) => { hoisted.savedInterceptor = fn; },
+      },
+    },
     defaults: { headers: {} },
   };
-  const create = vi.fn(() => instance);
+  const create = vi.fn(() => inst);
   const axiosDefaultPost = (...a) => hoisted.mockPost(...a);
   return { default: { create, post: axiosDefaultPost } };
 });
 
-/* ========= Importar después del mock ========= */
+/* ===== Importar después del mock ===== */
 import {
   almacenamientoToken,
   login,
@@ -33,13 +40,15 @@ import {
 } from "../api";
 
 describe("api.js unitario", () => {
-  const { mockGet, mockPost, interceptorUse } = hoisted;
+  const { mockGet, mockPost, mockPatch, mockDelete } = hoisted;
 
   beforeEach(() => {
     localStorage.clear();
     mockGet.mockReset();
     mockPost.mockReset();
-    interceptorUse.mockReset();
+    mockPatch.mockReset();
+    mockDelete.mockReset();
+    hoisted.savedInterceptor = null;
   });
 
   it("almacenamientoToken guarda/lee/limpia", () => {
@@ -63,16 +72,37 @@ describe("api.js unitario", () => {
     );
   });
 
-  it("interceptor agrega Authorization cuando hay token", () => {
-    // función registrada por api.js al importar el módulo
-    const call = interceptorUse.mock.calls[0];
-    expect(call).toBeTruthy();
-    const interceptorFn = call[0];
+test("interceptor agrega Authorization cuando hay token", () => {
+  // En el mock dejamos guardado lo que se pasó a cliente.interceptors.request.use(...)
+  // Con Axios v1 esa llamada puede recibir:
+  //  - una función (onFulfilled)
+  //  - o un objeto { onFulfilled, onRejected }
+  // Por eso soportamos ambas.
+  const interceptor = hoisted.savedInterceptor;
 
-    almacenamientoToken.guardar("xyz");
-    const cfg = interceptorFn({ headers: {} });
-    expect(cfg.headers.Authorization).toBe("Bearer xyz");
-  });
+  // Debe existir algo guardado
+  expect(interceptor).toBeTruthy();
+
+  // Normalizamos a una función ejecutable
+  const runInterceptor =
+    typeof interceptor === "function"
+      ? interceptor
+      : interceptor && typeof interceptor.onFulfilled === "function"
+      ? interceptor.onFulfilled
+      : null;
+
+  expect(
+    typeof runInterceptor === "function",
+    "interceptor debe ser función o tener onFulfilled"
+  ).toBe(true);
+
+  // Simulamos que ya hay token guardado
+  almacenamientoToken.guardar("xyz");
+
+  // Ejecutamos el interceptor y validamos el header
+  const cfg = runInterceptor({ headers: {} });
+  expect(cfg.headers.Authorization).toBe("Bearer xyz");
+});
 
   it("obtenerYo guarda rol en localStorage", async () => {
     mockGet.mockResolvedValueOnce({ data: { id: 1, usuario: "gm", rol: "GM" } });
@@ -108,6 +138,8 @@ describe("api.js unitario", () => {
   it("PersonajesAPI: listar, disponibles y acciones", async () => {
     mockGet.mockResolvedValue({ data: [] });
     mockPost.mockResolvedValue({ data: { ok: true } });
+    mockPatch.mockResolvedValue({ data: { ok: true } });
+    mockDelete.mockResolvedValue({ data: {} });
 
     await PersonajesAPI.listar();
     await PersonajesAPI.disponibles();
@@ -121,7 +153,7 @@ describe("api.js unitario", () => {
     expect(mockPost).toHaveBeenCalledWith("/personajes/7/elegir-habilidades/", { habilidades: [1, 2] });
 
     await PersonajesAPI.setOpciones(7, { opcion_hab1: 1 });
-    expect(mockPost).toHaveBeenCalledWith("/personajes/7/set-opciones/", { opcion_hab1: 1 });
+    expect(mockPatch).toHaveBeenCalledWith("/personajes/7/set-opciones/", { opcion_hab1: 1 });
 
     await PersonajesAPI.subirNivel(7);
     expect(mockPost).toHaveBeenCalledWith("/personajes/7/subir_nivel/");
@@ -134,5 +166,11 @@ describe("api.js unitario", () => {
 
     await PersonajesAPI.crear({ nombre: "Thrall" });
     expect(mockPost).toHaveBeenCalledWith("/personajes/", { nombre: "Thrall" });
+
+    await PersonajesAPI.actualizar(7, { nombre: "T" });
+    expect(mockPatch).toHaveBeenCalledWith("/personajes/7/", { nombre: "T" });
+
+    await PersonajesAPI.eliminar(7);
+    expect(mockDelete).toHaveBeenCalledWith("/personajes/7/");
   });
 });

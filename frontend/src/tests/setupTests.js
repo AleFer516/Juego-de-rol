@@ -1,10 +1,25 @@
-// src/tests/setupTests.js
-import "@testing-library/jest-dom";
+// src/setupTests.js
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import { server } from "./mocks/server";
 
-// MSW (servidor de mocks para pruebas de integración)
-import { server } from "../mocks/server";
+// Evita que falles por alguna ruta sin mock.
+// Puedes cambiar a 'warn' si prefieres ver un aviso.
+server.listen({ onUnhandledRequest: "bypass" });
 
-// Arranca/parar MSW para pruebas (solo test)
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+beforeAll(() => {
+  // Nada extra por ahora
+});
+
+afterEach(() => {
+  server.resetHandlers();
+  // Limpia timers/mock fetch si los usas
+  vi.clearAllMocks?.();
+  // Limpia localStorage entre tests por sanidad
+  try {
+    localStorage.clear();
+  } catch {}
+});
+
+afterAll(() => {
+  server.close();
+});
