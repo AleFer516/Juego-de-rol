@@ -1,2 +1,68 @@
 Forbidden: /api/razas/
 Not Found: /api/personajes/1/
+Watching for file changes with StatReloader
+"OPTIONS /api/token/ HTTP/1.1" 200 0
+"POST /api/token/ HTTP/1.1" 200 483
+"OPTIONS /api/yo/ HTTP/1.1" 200 0
+"GET /api/yo/ HTTP/1.1" 200 34
+"OPTIONS /api/razas/ HTTP/1.1" 200 0
+"OPTIONS /api/habilidades/ HTTP/1.1" 200 0
+"OPTIONS /api/poderes/ HTTP/1.1" 200 0
+"OPTIONS /api/equipamientos/ HTTP/1.1" 200 0
+"OPTIONS /api/personajes/ HTTP/1.1" 200 0
+"OPTIONS /api/personajes/disponibles/ HTTP/1.1" 200 0
+"OPTIONS /api/habilidades/ HTTP/1.1" 200 0
+"OPTIONS /api/razas/ HTTP/1.1" 200 0
+"OPTIONS /api/poderes/ HTTP/1.1" 200 0
+"OPTIONS /api/personajes/ HTTP/1.1" 200 0
+"OPTIONS /api/equipamientos/ HTTP/1.1" 200 0
+"OPTIONS /api/personajes/disponibles/ HTTP/1.1" 200 0
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1116
+"GET /api/personajes/ HTTP/1.1" 200 1475
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1116
+"GET /api/personajes/ HTTP/1.1" 200 1475
+Bad Request: /api/personajes/
+"POST /api/personajes/ HTTP/1.1" 400 169
+"POST /api/personajes/ HTTP/1.1" 201 105
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1275
+"GET /api/personajes/ HTTP/1.1" 200 1634
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"OPTIONS /api/personajes/7/subir_nivel/ HTTP/1.1" 200 0
+"POST /api/personajes/7/subir_nivel/ HTTP/1.1" 200 21
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1275
+"GET /api/personajes/ HTTP/1.1" 200 1634
+"OPTIONS /api/personajes/7/cambiar_estado/ HTTP/1.1" 200 0
+"POST /api/personajes/7/cambiar_estado/ HTTP/1.1" 200 27
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1275
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/personajes/ HTTP/1.1" 200 1634
+"OPTIONS /api/personajes/7/liberar/ HTTP/1.1" 200 0
+"POST /api/personajes/7/liberar/ HTTP/1.1" 200 11
+"GET /api/equipamientos/ HTTP/1.1" 200 98
+"GET /api/razas/ HTTP/1.1" 200 88
+"GET /api/habilidades/ HTTP/1.1" 200 177
+"GET /api/poderes/ HTTP/1.1" 200 101
+"GET /api/personajes/disponibles/ HTTP/1.1" 200 1275
+"GET /api/personajes/ HTTP/1.1" 200 1634
+Forbidden: /api/razas/
+Not Found: /api/personajes/1/
+Forbidden: /api/razas/
+Not Found: /api/personajes/1/

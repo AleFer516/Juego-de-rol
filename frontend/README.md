@@ -1,26 +1,98 @@
-# React + Vite
+# 🎮 Juego de Rol Web (RPG)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Proyecto académico de aplicación web para la gestión de personajes de un **juego de rol**, con roles diferenciados:  
+- **GM (Game Master)**: administra el catálogo global y controla personajes.  
+- **Jugador**: elige personajes disponibles y gestiona los suyos.  
 
-Currently, two official plugins are available:
+Desarrollado con **Django REST Framework (backend)** y **React + Vite (frontend)**.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
+---
 
-## React Compiler
+## 🧑‍💻 Funcionalidades principales
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Rol GM (Game Master)**:
+  - Administrar catálogos de razas, poderes, habilidades y equipamientos.
+  - Crear personajes y definir sus opciones de habilidades.
+  - Subir nivel, cambiar estado (VIVO, MUERTO, CONGELADO) y liberar personajes.
 
-## Expanding the ESLint configuration
+- **Rol Jugador**:
+  - Elegir personajes disponibles en el pool.
+  - Seleccionar exactamente 2 habilidades de las opciones definidas por el GM.
+  - Ver y administrar únicamente sus personajes.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
 
-## CI/CD y Entornos
-- **CI**: GitHub Actions ejecuta:
-  - Backend: `check --deploy`, migraciones y `pytest`.
-  - Frontend: `vitest` + `vite build`, y E2E con Cypress (opcional).
-- **Entornos**:
-  - Desarrollo: `.env.development` en frontend (`VITE_API_URL=http://127.0.0.1:8000`), `.env` en backend (no versionado).
-  - Producción: Variables de entorno en el hosting (Django y Vite).
-- **Seguridad**:
-  - Secretos por variables (no en código), `DEBUG=False` en prod, CORS restringido al dominio del front, HTTPS en ambos lados.
+## 🔄 CI/CD
+
+El proyecto cuenta con **GitHub Actions** que corren automáticamente en cada push/pull request:  
+- Backend: instala dependencias, corre migraciones y ejecuta `pytest`.  
+- Frontend: instala dependencias, corre `npm run test` y compila con `vite build`.  
+
+Workflows ubicados en `.github/workflows`.
+
+---
+
+## 🛡️ Seguridad aplicada
+
+- Contraseñas encriptadas con Django.  
+- Tokens JWT para autenticación.  
+- Intentos de login limitados con `django-axes`.  
+- Validación estricta de datos en backend.  
+- Auditoría de acciones en el modelo `AuditLog` y en archivo `audit.log`.  
+
+## 🚀 Tecnologías principales
+
+- **Backend**: Django 5, Django REST Framework, SimpleJWT, SQLite (dev) / PostgreSQL (prod).
+- **Frontend**: React 18 + Vite, Tailwind CSS.
+- **Pruebas**: Pytest, Vitest, Testing Library, Cypress (E2E).
+- **CI/CD**: GitHub Actions.
+- **Seguridad**: JWT, validación de datos, auditoría de acciones, control de accesos por rol.
+
+---
+
+## ⚙️ Instalación del proyecto
+
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/tuusuario/juego-rol-web.git
+cd juego-rol-web
+
+# 2. Configuración backend
+cd backend
+python -m venv .venv
+source .venv/bin/activate        # Linux / Mac
+.venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+# 3. Configuración frontend
+cd ../frontend
+npm install
+npm run dev
+
+# 4. Variables de entorno
+# backend/.env
+DEBUG=True
+SECRET_KEY=tu_clave
+ALLOWED_HOSTS=127.0.0.1,localhost
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5173
+
+# frontend/.env.development
+VITE_API_URL=http://127.0.0.1:8000
+
+# 4. Pruebas
+# Backend
+cd backend
+pytest -q
+
+# Frontend
+cd frontend
+npm run test
+
+# End-to-End
+cd frontend
+npx cypress open
+
+

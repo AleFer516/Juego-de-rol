@@ -1,3 +1,4 @@
+// src/tests/setupTests.js
 import "@testing-library/jest-dom";
 
 // MSW (servidor de mocks para pruebas de integración)
