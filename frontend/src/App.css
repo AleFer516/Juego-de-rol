@@ -1,0 +1,63 @@
+/* Contenedor principal */
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #EBF9F7; /* Fondo suave */
+  color: #103731; /* Texto principal */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Logo */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: transform 300ms, filter 300ms;
+  border-radius: 1rem;
+  background-color: #C8EFE9; /* Fondo claro detrás del logo */
+}
+.logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 1.5em #36BBA7aa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 1.5em #5DD0BFaa);
+}
+
+/* Animación del logo */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+/* Tarjetas */
+.card {
+  padding: 2em;
+  background-color: #ffffff;
+  border: 1px solid #C8EFE9;
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(16, 55, 49, 0.08);
+  transition: transform 200ms, box-shadow 200ms;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(37, 126, 113, 0.15);
+}
+
+/* Texto secundario */
+.read-the-docs {
+  color: #257E71;
+  font-size: 0.9rem;
+}

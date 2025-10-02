@@ -1,0 +1,57 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      sqlite:
+        image: keinos/sqlite3:latest
+        options: >-
+          --health-cmd "sqlite3 --version"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+          pip install django djangorestframework djangorestframework-simplejwt django-cors-headers python-dotenv dj-database-url model_bakery pytest pytest-django django-axes
+
+      - name: Env (test)
+        working-directory: backend
+        run: |
+          echo "DJANGO_SECRET_KEY=test-key" >> $GITHUB_ENV
+          echo "DJANGO_DEBUG=False" >> $GITHUB_ENV
+          echo "DJANGO_ALLOWED_HOSTS=*" >> $GITHUB_ENV
+
+      - name: Django checks & migrate
+        working-directory: backend
+        run: |
+          python manage.py check --deploy
+          python manage.py migrate --noinput
+
+      - name: Run pytest
+        working-directory: backend
+        run: |
+          pytest -q
